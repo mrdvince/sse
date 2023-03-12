@@ -1,7 +1,7 @@
 use std::{io, sync::Arc};
 
 use actix_web::{get, middleware::Logger, post, web, App, HttpResponse, HttpServer, Responder};
-use actix_web_lab::extract::Path;
+use actix_web_lab::{extract::Path, respond::Html};
 
 use std::time::Duration;
 
@@ -99,6 +99,7 @@ async fn main() -> io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .app_data(web::Data::from(Arc::clone(&data)))
+            .service(index)
             .service(event_stream)
             .service(broadcast_msg)
             .wrap(Logger::default())
@@ -107,6 +108,11 @@ async fn main() -> io::Result<()> {
     .workers(2)
     .run()
     .await
+}
+
+#[get("/")]
+async fn index() -> impl Responder {
+    Html(include_str!("index.html").to_string())
 }
 
 #[get("/events")]
